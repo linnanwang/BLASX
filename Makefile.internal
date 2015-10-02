@@ -1,0 +1,33 @@
+include $(BLASX_DIR)/make.inc
+
+# check OS 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    DYLIB_EXT = so
+endif
+ifeq ($(UNAME_S),Darwin)
+    DYLIB_EXT = dylib
+endif
+
+#
+# Set default values if they are not set in make.inc
+#
+LIBBLASX_CONTROL     ?= $(BLASX_DIR)/lib/libblasxcontrol.a
+LIBBLASX    ?= $(BLASX_DIR)/lib/libblasx.a
+LIBBLASX_DYLIB    ?= $(BLASX_DIR)/lib/libblasx.$(DYLIB_EXT)
+
+prefix ?= /usr/local/quantx/blasx
+
+# Include directories
+INC         = -I$(BLASX_DIR)/include
+
+# Location of the libraries.
+LIBDIR      = -L$(BLASX_DIR)/lib
+
+#  All internal libraries
+LIB    = $(LIBDIR) -lblasx
+#  All external libraries
+LIBEXT = $(LIBBLAS) -lpthread -lm
+
+INC := $(INC) $(INCBLAS)
+LIB := $(LIB) $(LIBEXT)

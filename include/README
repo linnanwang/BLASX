@@ -1,0 +1,18 @@
+#used to describe the functionalities of each header here, g++ required
+
+complex.h
+	prototype from g++ complex header. It is enclosed into the QuantX namespace. Check the forward declartion to see the basic functionalities of complex number provided   here.
+	add two light weight versions of complex numbers for large scale complex matrix. 
+	typedef struct{ double re; double im; } complex16;
+	typedef struct{ float re; float im;   } complex8;
+	try to avoid using the complex class in a large scal calculation. 
+    //adding constructors for c8 and c16
+    template<typename _Tp>
+    inline
+    complex<_Tp>::complex(const complex8& c)
+    : _M_real(static_cast<_Tp>(c.re)), _M_imag(static_cast<_Tp>(c.im)) {}
+    template<typename _Tp>
+    inline
+    complex<_Tp>::complex(const complex16& c)
+    : _M_real(static_cast<_Tp>(c.re)), _M_imag(static_cast<_Tp>(c.im)) {}
+	
