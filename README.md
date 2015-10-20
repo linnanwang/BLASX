@@ -19,7 +19,7 @@ To use BLASX:
 1. export LD_LIBRARY_PATH to the location of BLASX lib.
 </li>
 <li>
-2. you need to link cuBLAS when use BLASX. There is an example in the testing folder.
+2. you need to link cuBLAS when use BLASX. There is an example of linkage in the testing folder.
 </li>
 </ul>
 Integrating BLASX with MATLAB is pretty easy,
