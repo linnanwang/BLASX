@@ -22,9 +22,9 @@ To use BLASX:
 2. you need to link cuBLAS when use BLASX. There is an example in the testing folder.
 </li>
 </ul>
+Integrating BLASX with MATLAB is pretty easy,
 
 <ul>
-To integrate BLASX with MATLAB is pretty easy,
 </li>
 <li>
 1. open a command line, export BLAS_VERSION=/path/to/BLASX
