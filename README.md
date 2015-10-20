@@ -7,7 +7,7 @@ For installation, please change the make.inc. Basically, the following varaiable
 1. LIBCPUBLAS: please change it to the location of CPU BLAS. OpenBLAS is highly recommended. If you're using Linux, the library extension should be '.so'. I give an OSX verison in the repository make.inc, which follows the dylib extension.
 </li>
 <li>
-2. LIBGPUBLAS: please change it to the correct location of cuda
+2. LIBGPUBLAS: please change it to the location of CUDA on your machine
 </li>
 </ul>
 
