@@ -36,6 +36,6 @@ Integrating BLASX with MATLAB is pretty easy,
 3. that's it, enjoy!!
 </li>
 </ul>
-For more questions, please open an issue and I will update accordingly. Thank you.
+For more questions, please open an issue and I will update accordingly. Enjoy.
 
 Linnan
