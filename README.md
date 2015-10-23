@@ -40,11 +40,11 @@ For more questions, please open an issue and I will update accordingly. Enjoy!
 
 Please cite our paper@
 
-@article{wang2015blasx, \n
-  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing}, \n
-  author={Wang, Linnan and Wu, Wei and Xiao, Jianxiong and Yang, Yi}, \n
-  journal={arXiv preprint arXiv:1510.05041},\n
-  year={2015}\n
+@article{wang2015blasx, <br>
+  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing}, <br>
+  author={Wang, Linnan and Wu, Wei and Xiao, Jianxiong and Yang, Yi}, <br>
+  journal={arXiv preprint arXiv:1510.05041},<br>
+  year={2015}<br>
 }
 
 Linnan
