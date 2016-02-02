@@ -1,4 +1,4 @@
-# BLASX 
+# BLASX (please star our project) 
 It's a heterogeneous multiGPU level-3 BLAS library. This is an alternative to cuBLAS-XT, a commercial licensed multiGPU tiled BLAS. However, BLASX deliveries at least 25% more performance and 200% less communication volume. For detailed information, please refer to our paper @ http://arxiv.org/abs/1510.05041
 
 For installation, please change the make.inc. Basically, the following varaiables need to be updated:
