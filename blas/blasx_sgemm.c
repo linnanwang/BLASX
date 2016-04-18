@@ -28,23 +28,23 @@ void blasx_gpu_sgemm_kernel(int j,
     int i = current_task/(y+1);
     int k = current_task%(y+1);
     float *A_dev, *B_dev;
-    if (TransA == CblasTrans) {
+    if (TransA != CblasNoTrans) {
         margin_adjustment(nrowa,ncola,block_dim,j,i,&nrowa_dev,&ncola_dev);
     }else{
         margin_adjustment(nrowa,ncola,block_dim,i,j,&nrowa_dev,&ncola_dev);
     }
-    if (TransB == CblasTrans) {
+    if (TransB != CblasNoTrans) {
         margin_adjustment(nrowb,ncolb,block_dim,k,j,&nrowb_dev,&ncolb_dev);
     }else{
         margin_adjustment(nrowb,ncolb,block_dim,j,k,&nrowb_dev,&ncolb_dev);
     }
     margin_adjustment(nrowc,ncolc,block_dim,i,k,&nrowc_dev,&ncolc_dev);
-    if (TransA == CblasTrans) {
+    if (TransA != CblasNoTrans) {
         nrow_offset_a = j*block_dim, ncol_offset_a = i*block_dim;
     }else{
         nrow_offset_a = i*block_dim, ncol_offset_a = j*block_dim;
     }
-    if (TransB == CblasTrans) {
+    if (TransB != CblasNoTrans) {
         nrow_offset_b = k*block_dim, ncol_offset_b = j*block_dim;
     }else{
         nrow_offset_b = j*block_dim, ncol_offset_b = k*block_dim;
@@ -80,9 +80,9 @@ void blasx_gpu_sgemm_kernel(int j,
     assert( cublasSetStream(*handle_p, *stream) == CUBLAS_STATUS_SUCCESS );
 
     float beta_inner = (j==0)?(beta):(1);
-    int ka = (TransA == CblasTrans)?(nrowa_dev):(ncola_dev);
-    cublasOperation_t transa = (TransA == CblasTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
-    cublasOperation_t transb = (TransB == CblasTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
+    int ka = (TransA != CblasNoTrans)?(nrowa_dev):(ncola_dev);
+    cublasOperation_t transa = (TransA != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
+    cublasOperation_t transb = (TransB != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
     cublasStatus_t status = cublasSgemm(*handle_p,
                                         transa, transb,
                                         nrowc_dev, ncolc_dev, ka,
@@ -265,14 +265,14 @@ int blasx_sgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
     int block_dim = BLOCKSIZE_SGEMM;
     
     /*slicing configuration*/
-    if (TransA == CblasTrans) {
+    if (TransA != CblasNoTrans) {
         nrowa = K;
         ncola = M;
     }else{
         nrowa = M;
         ncola = K;
     }
-    if (TransB == CblasTrans) {
+    if (TransB != CblasNoTrans) {
         nrowb = N;
         ncolb = K;
     }else{
@@ -284,12 +284,12 @@ int blasx_sgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
     int x = (nrowa%block_dim == 0)?(nrowa/block_dim-1):(nrowa/block_dim);
     int y;
     int z = (ncola%block_dim == 0)?(ncola/block_dim-1):(ncola/block_dim);
-    if (TransA == CblasTrans) {
+    if (TransA != CblasNoTrans) {
         int temp = x;
         x = z;
         z = temp;
     }
-    if (TransB == CblasTrans) {
+    if (TransB != CblasNoTrans) {
         y = (nrowb%block_dim == 0)?(nrowb/block_dim-1):(nrowb/block_dim);
     }else{
         y = (ncolb%block_dim == 0)?(ncolb/block_dim-1):(ncolb/block_dim);
