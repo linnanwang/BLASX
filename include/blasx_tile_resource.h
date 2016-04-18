@@ -22,6 +22,11 @@ extern cublasHandle_t handles_DGEMM[10];
 extern cudaStream_t   streams_DGEMM[40];
 extern cudaEvent_t    event_DGEMM[40];
 extern double*        C_dev_DGEMM[80];
+//ZGEMM
+extern cublasHandle_t handles_ZGEMM[10];
+extern cudaStream_t   streams_ZGEMM[40];
+extern cudaEvent_t    event_ZGEMM[40];
+extern cuDoubleComplex* C_dev_ZGEMM[80];
 
 void blasx_init_cblas_func(void **cblas_func_p, char *fun_name);
 

@@ -25,6 +25,11 @@ void mem_control_kernel_double(double *starting_point_A, double **A_dev,
                         int *mem_cpy_counter, reader_tracker *addr_track,
                         cudaStream_t *stream,
                         int nrowa_dev, int ncola_dev, int lda);
+void mem_control_kernel_double_complex(cuDoubleComplex*starting_point_A, cuDoubleComplex **A_dev,
+                              LRU_t **LRUs, const int GPUs, const int GPU_id, int block_dim,
+                              int *mem_cpy_counter, reader_tracker *addr_track,
+                              cudaStream_t *stream,
+                              int nrowa_dev, int ncola_dev, int lda);
 void mem_control_kernel_float(float *starting_point_A, float **A_dev,
                               LRU_t **LRUs, const int GPUs, const int GPU_id, int block_dim,
                               int *mem_cpy_counter, reader_tracker *addr_track,
@@ -33,6 +38,7 @@ void mem_control_kernel_float(float *starting_point_A, float **A_dev,
 /*--GEMM--*/
 void collect_final_result_dgemm(int *tasks_rs, int *tasks_rs_size, int switcher, cudaStream_t *stream, double** C_dev, int block_dim, int stream_num, int x, int y, int z, int nrowc, int ncolc, int ldc, double *C);
 void collect_final_result_sgemm(int *tasks_rs, int *tasks_rs_size, int switcher, cudaStream_t *stream, float** C_dev, int block_dim, int stream_num, int x, int y, int z, int nrowc, int ncolc, int ldc, float *C);
+void collect_final_result_zgemm(int *tasks_rs, int *tasks_rs_size, int switcher, cudaStream_t *stream, cuDoubleComplex** C_dev, int block_dim, int stream_num, int x, int y, int z, int nrowc, int ncolc, int ldc, cuDoubleComplex *C);
 /*--SYRK&SYR2K--*/
 void collect_final_result_dsyrk_syr2k(int *tasks_rs, int *tasks_rs_size, int switcher, cudaStream_t *stream, double** C_dev, int block_dim, int stream_num, int x, int y, int z, int nrowc, int ncolc, int ldc, double *C, enum CBLAS_UPLO Uplo);
 
