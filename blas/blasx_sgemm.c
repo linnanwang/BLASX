@@ -81,8 +81,9 @@ void blasx_gpu_sgemm_kernel(int j,
 
     float beta_inner = (j==0)?(beta):(1);
     int ka = (TransA != CblasNoTrans)?(nrowa_dev):(ncola_dev);
-    cublasOperation_t transa = (TransA != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
-    cublasOperation_t transb = (TransB != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
+    cublasOperation_t transa, transb;
+    CBLasTransToCuBlasTrans(TransA, &transa);
+    CBLasTransToCuBlasTrans(TransB, &transb);
     cublasStatus_t status = cublasSgemm(*handle_p,
                                         transa, transb,
                                         nrowc_dev, ncolc_dev, ka,

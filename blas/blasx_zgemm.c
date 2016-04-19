@@ -81,8 +81,10 @@ void blasx_gpu_zgemm_kernel(int j,
 
     cuDoubleComplex beta_inner = (j==0)?(*beta):(make_cuDoubleComplex(1.0,0.0));
     int ka = (TransA != CblasNoTrans)?(nrowa_dev):(ncola_dev);
-    cublasOperation_t transa = (TransA != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
-    cublasOperation_t transb = (TransB != CblasNoTrans)?(CUBLAS_OP_T):(CUBLAS_OP_N);
+    cublasOperation_t transa, transb;
+    CBLasTransToCuBlasTrans(TransA, &transa);
+    CBLasTransToCuBlasTrans(TransB, &transb);
+
     cublasStatus_t status = cublasZgemm(*handle_p,
                                         transa, transb,
                                         nrowc_dev, ncolc_dev, ka,
