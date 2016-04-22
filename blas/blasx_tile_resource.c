@@ -19,6 +19,11 @@ cublasHandle_t handles_DGEMM[10] = { NULL };
 cudaStream_t   streams_DGEMM[40] = { NULL };
 cudaEvent_t    event_DGEMM[40] = { NULL };
 double*        C_dev_DGEMM[80] = { NULL };
+//ZGEMM
+cublasHandle_t handles_ZGEMM[10] = { NULL };
+cudaStream_t   streams_ZGEMM[40] = { NULL };
+cudaEvent_t    event_ZGEMM[40] = { NULL };
+cuDoubleComplex*        C_dev_ZGEMM[80] = { NULL };
 
 
 

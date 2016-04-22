@@ -7,7 +7,7 @@ size_t cblas_isamax(const int N, const float  *X, const int incX)
     if (incX < 0)                                         info = 3;
     if (info != 0) {
         xerbla_(ERROR_NAME, &info);
-        return;
+        return -1;
     }
     if (cpublas_handle == NULL) blasx_init(CPU);
     if (cblas_isamax_p == NULL) blasx_init_cblas_func(&cblas_isamax_p, "cblas_isamax");
@@ -27,7 +27,7 @@ size_t cblas_idamax(const int N, const double *X, const int incX)
     if (incX < 0)                                         info = 3;
     if (info != 0) {
         xerbla_(ERROR_NAME, &info);
-        return;
+        return -1;
     }
     if (cpublas_handle == NULL) blasx_init(CPU);
     if (cblas_idamax_p == NULL) blasx_init_cblas_func(&cblas_idamax_p, "cblas_idamax");

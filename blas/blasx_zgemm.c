@@ -1,20 +1,20 @@
-#include <blasx_sgemm.h>
+#include <blasx_zgemm.h>
 cudaError_t    cuda_err;
 cublasStatus_t cuda_sta;
 
-void blasx_gpu_sgemm_kernel(int j,
+void blasx_gpu_zgemm_kernel(int j,
                             int nrowa, int ncola,
                             int nrowb, int ncolb,
                             int nrowc, int ncolc,
                             int current_task, int prior_task,
                             enum CBLAS_TRANSPOSE TransA, enum CBLAS_TRANSPOSE TransB,
-                            float* A, float* B, float* C,
+                            cuDoubleComplex* A, cuDoubleComplex* B, cuDoubleComplex* C,
                             int lda, int ldb, int ldc,
                             int x, int y, int z,
-                            float** C_dev,
+                            cuDoubleComplex** C_dev,
                             cudaStream_t *stream, cublasHandle_t *handle_p,
                             int current_stream,
-                            float alpha, float beta, int block_dim,
+                            cuDoubleComplex* alpha, cuDoubleComplex* beta, int block_dim,
                             int switcher, int* task_batch_counter,
                             LRU_t **LRUs, int GPUs,
                             int *mem_cpy_counter,
@@ -27,7 +27,7 @@ void blasx_gpu_sgemm_kernel(int j,
     int ncol_offset_a, ncol_offset_b;
     int i = current_task/(y+1);
     int k = current_task%(y+1);
-    float *A_dev, *B_dev;
+    cuDoubleComplex *A_dev, *B_dev;
     if (TransA != CblasNoTrans) {
         margin_adjustment(nrowa,ncola,block_dim,j,i,&nrowa_dev,&ncola_dev);
     }else{
@@ -49,21 +49,21 @@ void blasx_gpu_sgemm_kernel(int j,
     }else{
         nrow_offset_b = j*block_dim, ncol_offset_b = k*block_dim;
     }
-    float *starting_point_A = &A[nrow_offset_a+ncol_offset_a*lda];
-    float *starting_point_B = &B[nrow_offset_b+ncol_offset_b*ldb];
+    cuDoubleComplex *starting_point_A = &A[nrow_offset_a+ncol_offset_a*lda];
+    cuDoubleComplex *starting_point_B = &B[nrow_offset_b+ncol_offset_b*ldb];
     //Asynchonizing set matrix on GPU
     //----------------LRU&RBT optimization----------------//
-    mem_control_kernel_float(starting_point_A, &A_dev, LRUs, GPUs, GPU_id, block_dim, mem_cpy_counter, addr_track, stream, nrowa_dev, ncola_dev, lda);
-    mem_control_kernel_float(starting_point_B, &B_dev, LRUs, GPUs, GPU_id, block_dim, mem_cpy_counter, addr_track, stream, nrowb_dev, ncolb_dev, ldb);
+    mem_control_kernel_double_complex(starting_point_A, &A_dev, LRUs, GPUs, GPU_id, block_dim, mem_cpy_counter, addr_track, stream, nrowa_dev, ncola_dev, lda);
+    mem_control_kernel_double_complex(starting_point_B, &B_dev, LRUs, GPUs, GPU_id, block_dim, mem_cpy_counter, addr_track, stream, nrowb_dev, ncolb_dev, ldb);
     //----------------------------------------------------//
     
     if (j == 0) {
         margin_adjustment(nrowc,ncolc,block_dim,i,k,&nrowc_dev,&ncolc_dev);
         int nrow_offset_c = i*block_dim;
         int ncol_offset_c = k*block_dim;
-        float *starting_point_C = &C[nrow_offset_c+ncol_offset_c*ldc];
-        if (beta != 0) {
-            assert( cublasSetMatrixAsync(nrowc_dev, ncolc_dev, sizeof(float), starting_point_C, ldc, C_dev[switcher*STREAMNUM+current_stream], block_dim, *stream) == CUBLAS_STATUS_SUCCESS );
+        cuDoubleComplex *starting_point_C = &C[nrow_offset_c+ncol_offset_c*ldc];
+        if (cuCreal(*beta) != 0 || cuCimag(*beta) != 0) {
+            assert( cublasSetMatrixAsync(nrowc_dev, ncolc_dev, sizeof(cuDoubleComplex), starting_point_C, ldc, C_dev[switcher*STREAMNUM+current_stream], block_dim, *stream) == CUBLAS_STATUS_SUCCESS );
         }
         if (*task_batch_counter != 0) {//Set matrix back
             int i_pre = prior_task/(y+1);
@@ -72,22 +72,23 @@ void blasx_gpu_sgemm_kernel(int j,
             margin_adjustment(nrowc,ncolc,block_dim,i_pre,k_pre,&nrowc_dev_pre,&ncolc_dev_pre);
             int nrow_offset_c_pre = i_pre*block_dim;
             int ncol_offset_c_pre = k_pre*block_dim;
-            float *starting_point_C_pre = &C[nrow_offset_c_pre+ncol_offset_c_pre*ldc];
-            assert( cublasGetMatrixAsync(nrowc_dev_pre, ncolc_dev_pre, sizeof(float), C_dev[current_stream+(1-switcher)*STREAMNUM], block_dim, starting_point_C_pre, ldc,*stream) == CUBLAS_STATUS_SUCCESS);
+            cuDoubleComplex *starting_point_C_pre = &C[nrow_offset_c_pre+ncol_offset_c_pre*ldc];
+            assert( cublasGetMatrixAsync(nrowc_dev_pre, ncolc_dev_pre, sizeof(cuDoubleComplex), C_dev[current_stream+(1-switcher)*STREAMNUM], block_dim, starting_point_C_pre, ldc,*stream) == CUBLAS_STATUS_SUCCESS);
         }
     }
     cudaStreamSynchronize(*stream);
     assert( cublasSetStream(*handle_p, *stream) == CUBLAS_STATUS_SUCCESS );
 
-    float beta_inner = (j==0)?(beta):(1);
+    cuDoubleComplex beta_inner = (j==0)?(*beta):(make_cuDoubleComplex(1.0,0.0));
     int ka = (TransA != CblasNoTrans)?(nrowa_dev):(ncola_dev);
     cublasOperation_t transa, transb;
     CBLasTransToCuBlasTrans(TransA, &transa);
     CBLasTransToCuBlasTrans(TransB, &transb);
-    cublasStatus_t status = cublasSgemm(*handle_p,
+
+    cublasStatus_t status = cublasZgemm(*handle_p,
                                         transa, transb,
                                         nrowc_dev, ncolc_dev, ka,
-                                        &alpha,
+                                        alpha,
                                         A_dev, block_dim,
                                         B_dev, block_dim,
                                         &beta_inner,
@@ -95,7 +96,7 @@ void blasx_gpu_sgemm_kernel(int j,
     assert( status == CUBLAS_STATUS_SUCCESS );
 }
 
-void blasx_gpu_sgemm(void *arg_data)
+void blasx_gpu_zgemm(void *arg_data)
 {
     int i;
     //----------GPU Argument Prepare------------//
@@ -108,14 +109,14 @@ void blasx_gpu_sgemm(void *arg_data)
     int x                       = arg->mat_conf->x;
     int y                       = arg->mat_conf->y;
     int z                       = arg->mat_conf->z;
-    float *A                    = (float*) arg->mat_conf->A;
-    float *B                    = (float*) arg->mat_conf->B;
-    float *C                    = (float*) arg->mat_conf->C;
+    cuDoubleComplex *A          = arg->mat_conf->A;
+    cuDoubleComplex *B          = arg->mat_conf->B;
+    cuDoubleComplex *C          = arg->mat_conf->C;
     int lda                     = arg->mat_conf->lda;
     int ldb                     = arg->mat_conf->ldb;
     int ldc                     = arg->mat_conf->ldc;
-    float beta                  = arg->mat_conf->beta;
-    float alpha                 = arg->mat_conf->alpha;
+    cuDoubleComplex* beta       = arg->mat_conf->beta;
+    cuDoubleComplex* alpha      = arg->mat_conf->alpha;
     int nrowa                   = arg->mat_conf->nrowa;
     int nrowb                   = arg->mat_conf->nrowb;
     int nrowc                   = arg->mat_conf->nrowc;
@@ -128,21 +129,21 @@ void blasx_gpu_sgemm(void *arg_data)
     //GPU configuration
     const int GPUs              = arg->GPUs;
     LRU_t   **LRUs              = arg->LRUs;
-    cublasHandle_t  handle      = handles_SGEMM[GPU_id];
+    cublasHandle_t  handle      = handles_ZGEMM[GPU_id];
     queue_t *tasks_queue        = arg->tasks_queue;
     //------------------------------------------//
     //hook C_dev
-    float *C_dev[STREAMNUM*2];
+    cuDoubleComplex *C_dev[STREAMNUM*2];
     for (i = 0; i < STREAMNUM*2; i++) {
-        C_dev[i] = C_dev_SGEMM[i+STREAMNUM*GPU_id*2];
+        C_dev[i] = C_dev_ZGEMM[i+STREAMNUM*GPU_id*2];
     }
     cudaStream_t stream[STREAMNUM];
     cudaEvent_t task_event[STREAMNUM];
     for (i = 0 ; i < STREAMNUM; i++) {
         //hook event
-        task_event[i] = event_SGEMM[i+GPU_id*STREAMNUM];
+        task_event[i] = event_ZGEMM[i+GPU_id*STREAMNUM];
         //hook stream
-        stream[i]     = streams_SGEMM[i+GPU_id*STREAMNUM];
+        stream[i]     = streams_ZGEMM[i+GPU_id*STREAMNUM];
     }
     
 #ifdef affinity
@@ -209,7 +210,7 @@ void blasx_gpu_sgemm(void *arg_data)
                 int current_task   = tasks_rs[rs_counter+STREAMNUM*switcher];
                 int prior_task     = tasks_rs[rs_counter+(1-switcher)*STREAMNUM];
                 cudaStream_t *curt_stream = &stream[current_stream];
-                blasx_gpu_sgemm_kernel(j,
+                blasx_gpu_zgemm_kernel(j,
                                        nrowa, ncola,
                                        nrowb, ncolb,
                                        nrowc, ncolc,
@@ -240,7 +241,7 @@ void blasx_gpu_sgemm(void *arg_data)
     //------------------------------------------//
 
     //---------------RESULT-HARVEST-------------//
-    collect_final_result_sgemm(tasks_rs, tasks_rs_size, switcher, stream, C_dev, block_dim, STREAMNUM, x, y, z, nrowc, ncolc, ldc, C);
+    collect_final_result_zgemm(tasks_rs, tasks_rs_size, switcher, stream, C_dev, block_dim, STREAMNUM, x, y, z, nrowc, ncolc, ldc, C);
     //------------------------------------------//
 #ifdef thread_profile
     printf("thread%d end@%f\n", GPU_id, get_cur_time());
@@ -248,22 +249,21 @@ void blasx_gpu_sgemm(void *arg_data)
 }
 
 //dispatch jobs
-int blasx_sgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
+int blasx_zgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
                 enum CBLAS_TRANSPOSE TransA, enum CBLAS_TRANSPOSE TransB,
-                const int M, const int N, const int K, const float alpha,
-                float *A, int lda,
-                float *B, int ldb,
-                const float beta,
-                float *C, int ldc)
+                const int M, const int N, const int K, const cuDoubleComplex *alpha,
+                cuDoubleComplex *A, int lda,
+                cuDoubleComplex *B, int ldb,
+                const cuDoubleComplex *beta,
+                cuDoubleComplex *C, int ldc)
 {
-
     //m: the rows of OP(A) and rows C
     //n: the columns of OP(B) and columns C
     //k: the columns of OP(A) and the rows of OP(B)
     /*----Initialization-----*/
     int nrowa, nrowb, nrowc;
     int ncola, ncolb, ncolc;
-    int block_dim = BLOCKSIZE_SGEMM;
+    int block_dim = BLOCKSIZE_ZGEMM;
     
     /*slicing configuration*/
     if (TransA != CblasNoTrans) {
@@ -296,6 +296,7 @@ int blasx_sgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
         y = (ncolb%block_dim == 0)?(ncolb/block_dim-1):(ncolb/block_dim);
     }
     
+
 #ifdef thread_barrier
     pthread_barrier_t barr;
     assert( pthread_barrier_init(&barr, NULL, GPUs) == 0 );
@@ -344,7 +345,7 @@ int blasx_sgemm(const int GPUs, cublasHandle_t* handles, LRU_t **LRUs,
 #ifdef thread_barrier
         gpu_thread_argument[GPU_id].barr        = &barr;
 #endif
-        int err=pthread_create(&gpu_tid[GPU_id], NULL, (void *)&blasx_gpu_sgemm, (void *)&gpu_thread_argument[GPU_id]);
+        int err=pthread_create(&gpu_tid[GPU_id], NULL, (void *)&blasx_gpu_zgemm, (void *)&gpu_thread_argument[GPU_id]);
         if (err != 0) printf("\ncan't create thread ");
     }
     

@@ -48,9 +48,10 @@ void cublasxt_init(){
     blasx_mutex_unlock();
 }
 
-void blasx_resource_init(int GPUs, cublasHandle_t* handles, cudaStream_t* streams, cudaEvent_t* events, void** C_dev, int is_float) {
-    if(is_float == 1) C_dev = (float**)  C_dev;
-    else              C_dev = (double**) C_dev;
+void blasx_resource_init(int GPUs, cublasHandle_t* handles, cudaStream_t* streams, cudaEvent_t* events, void** C_dev, int floatType_id) {
+    if(floatType_id == 0) C_dev = (float**)  C_dev;
+    else if(floatType_id == 1) C_dev = (double**) C_dev;
+    else              C_dev = (cuDoubleComplex**) C_dev;
     int GPU_id = 0;
     for (GPU_id = 0; GPU_id < GPUs; GPU_id++) {
         assert( cudaSetDevice(GPU_id) == cudaSuccess );
@@ -64,10 +65,12 @@ void blasx_resource_init(int GPUs, cublasHandle_t* handles, cudaStream_t* stream
         }
         //create C_dev
         for (i = 0; i < STREAMNUM*2; i++) {
-            if (is_float == 1) {
+            if (floatType_id == 0) {
                 assert( cudaMalloc((void**)&C_dev[i+GPU_id*STREAMNUM*2], sizeof(float)*BLOCKSIZE_SGEMM*BLOCKSIZE_SGEMM) == cudaSuccess );
-            } else {
+            }else if (floatType_id == 1) {
                  assert( cudaMalloc((void**)&C_dev[i+GPU_id*STREAMNUM*2], sizeof(double)*BLOCKSIZE_DGEMM*BLOCKSIZE_DGEMM) == cudaSuccess );
+            } else {
+                 assert( cudaMalloc((void**)&C_dev[i+GPU_id*STREAMNUM*2], sizeof(cuDoubleComplex)*BLOCKSIZE_ZGEMM*BLOCKSIZE_ZGEMM) == cudaSuccess );
             }
         }
     }
@@ -78,8 +81,9 @@ void blasx_tile_init(){
     cudaGetDeviceCount(&SYS_GPUS);
     assert(SYS_GPUS != 0);
     //GEMM
-    blasx_resource_init( SYS_GPUS, handles_SGEMM, streams_SGEMM, event_SGEMM, C_dev_SGEMM, 1);
-    blasx_resource_init( SYS_GPUS, handles_DGEMM, streams_DGEMM, event_DGEMM, C_dev_DGEMM, 0);
+    blasx_resource_init( SYS_GPUS, handles_SGEMM, streams_SGEMM, event_SGEMM, C_dev_SGEMM, 0);
+    blasx_resource_init( SYS_GPUS, handles_DGEMM, streams_DGEMM, event_DGEMM, C_dev_DGEMM, 1);
+    blasx_resource_init( SYS_GPUS, handles_ZGEMM, streams_ZGEMM, event_ZGEMM, C_dev_ZGEMM, 2);
     //flag init
     is_blasx_enable = 1;
     blasx_mutex_unlock();

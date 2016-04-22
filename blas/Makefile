@@ -133,7 +133,8 @@ OTHER := \
     blasx_internal.c       \
     blasx_globalpointers.c \
     blasx_sgemm.c          \
-	blasx_dgemm.c          \
+    blasx_zgemm.c          \
+	 blasx_dgemm.c          \
 
 ALLSRC := $(OTHER) $(TEST) $(1SRC) $(Z2SRC) $(C2SRC) $(S2SRC) $(D2SRC)
 
