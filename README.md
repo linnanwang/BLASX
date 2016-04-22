@@ -49,4 +49,4 @@ Please cite our paper@
 
 Linnan
 
----Thanks for Jan Winkelmann and Paul Springer adding ZGEMM routine
+---ZGEMM routine courtesy to Jan Winkelmann and Paul Springer 
