@@ -43,8 +43,8 @@ Please cite our paper@
 @article{wang2015blasx, <br>
   title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing}, <br>
   author={Wang, Linnan and Wu, Wei and Xu, Zenglin and Xiao, Jianxiong and Yang, Yi}, <br>
-  booktitle={International Conference of Supercomputing},
-  pages={19--27},
+  booktitle={International Conference of Supercomputing}, <br>
+  pages={19--27},<br>
   year={2016}<br>
 }
 
