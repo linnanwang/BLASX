@@ -1,5 +1,5 @@
 # BLASX
-It's a heterogeneous multiGPU level-3 BLAS library. This is an alternative to cuBLAS-XT, a commercial licensed multiGPU tiled BLAS. However, BLASX deliveries at least 25% more performance and 200% less communication volume. For detailed information, please refer to our paper @ http://arxiv.org/abs/1510.05041
+It's a heterogeneous multiGPU level-3 BLAS library. This is an alternative to cuBLAS-XT, a commercial licensed multiGPU tiled BLAS. However, BLASX deliveries at least 25% more performance and 200% less communication volume. For detailed information, please refer to our ICS paper @ http://arxiv.org/abs/1510.05041 or http://dl.acm.org/citation.cfm?id=2926256
 
 For installation, please change the make.inc. Basically, the following varaiables need to be updated:
 <ul>
@@ -40,12 +40,13 @@ For more questions, please open an issue and I will update accordingly. Enjoy!
 
 Please cite our paper@
 
-@article{wang2015blasx, <br>
-  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing}, <br>
-  author={Wang, Linnan and Wu, Wei and Xu, Zenglin and Xiao, Jianxiong and Yang, Yi}, <br>
-  booktitle={International Conference of Supercomputing}, <br>
-  pages={19--27},<br>
-  year={2016}<br>
+@inproceedings{wang2016blasx,
+  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing},
+  author={Wang, Linnan and Wu, Wei and Xu, Zenglin and Xiao, Jianxiong and Yang, Yi},
+  booktitle={Proceedings of the 2016 International Conference on Supercomputing},
+  pages={20},
+  year={2016},
+  organization={ACM}
 }
 
 Linnan
