@@ -38,16 +38,18 @@ Integrating BLASX with MATLAB is pretty easy,
 </ul>
 For more questions, please open an issue and I will update accordingly. Enjoy!
 
+If you need other routines in Level-3 BLAS, please contact me at wangnan318@gmail.com
+
 Please cite our paper@
 
-@inproceedings{wang2016blasx,
-  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing},
-  author={Wang, Linnan and Wu, Wei and Xu, Zenglin and Xiao, Jianxiong and Yang, Yi},
-  booktitle={Proceedings of the 2016 International Conference on Supercomputing},
-  pages={20},
-  year={2016},
-  organization={ACM}
-}
+@inproceedings{wang2016blasx, <br />
+  title={BLASX: A High Performance Level-3 BLAS Library for Heterogeneous Multi-GPU Computing}, <br />
+  author={Wang, Linnan and Wu, Wei and Xu, Zenglin and Xiao, Jianxiong and Yang, Yi}, <br />
+  booktitle={Proceedings of the 2016 International Conference on Supercomputing}, <br />
+  pages={20}, <br />
+  year={2016}, <br />
+  organization={ACM} <br />
+} <br />
 
 Linnan
 
