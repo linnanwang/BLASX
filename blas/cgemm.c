@@ -79,9 +79,9 @@ void cblas_cgemm(const enum CBLAS_ORDER Order,
             status = cublasXtCgemm(cublasXt_handle,
                                    transa, transb,
                                    M, N, K,
-                                   (cuFloatComplex*)&alpha, (cuFloatComplex*)A, lda,
+                                   (cuFloatComplex*)alpha, (cuFloatComplex*)A, lda,
                                    (cuFloatComplex*)B, ldb,
-                                   (cuFloatComplex*)&beta,  (cuFloatComplex*)C, ldc);
+                                   (cuFloatComplex*)beta,  (cuFloatComplex*)C, ldc);
             if( status != CUBLAS_STATUS_SUCCESS ) goto CPU_BLAS;
             break;
 //        case 3:

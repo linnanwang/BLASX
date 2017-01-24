@@ -117,7 +117,7 @@ void cblas_sgemm(const enum CBLAS_ORDER Order,
 #endif
             cudaHostUnregister(A);
             cudaHostUnregister(B);
-            cudaHostUnregister(A);
+            cudaHostUnregister(C);
             break;
         default:
             break;
