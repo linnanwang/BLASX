@@ -59,8 +59,8 @@ void blasx_gpu_zgemm_kernel(int j,
     
     if (j == 0) {
         margin_adjustment(nrowc,ncolc,block_dim,i,k,&nrowc_dev,&ncolc_dev);
-        int nrow_offset_c = i*block_dim;
-        int ncol_offset_c = k*block_dim;
+        long nrow_offset_c = i*block_dim;
+        long ncol_offset_c = k*block_dim;
         cuDoubleComplex *starting_point_C = &C[nrow_offset_c+ncol_offset_c*ldc];
         if (cuCreal(*beta) != 0 || cuCimag(*beta) != 0) {
             assert( cublasSetMatrixAsync(nrowc_dev, ncolc_dev, sizeof(cuDoubleComplex), starting_point_C, ldc, C_dev[switcher*STREAMNUM+current_stream], block_dim, *stream) == CUBLAS_STATUS_SUCCESS );
@@ -70,8 +70,8 @@ void blasx_gpu_zgemm_kernel(int j,
             int k_pre = prior_task%(y+1);
             int nrowc_dev_pre, ncolc_dev_pre;
             margin_adjustment(nrowc,ncolc,block_dim,i_pre,k_pre,&nrowc_dev_pre,&ncolc_dev_pre);
-            int nrow_offset_c_pre = i_pre*block_dim;
-            int ncol_offset_c_pre = k_pre*block_dim;
+            long nrow_offset_c_pre = i_pre*block_dim;
+            long ncol_offset_c_pre = k_pre*block_dim;
             cuDoubleComplex *starting_point_C_pre = &C[nrow_offset_c_pre+ncol_offset_c_pre*ldc];
             assert( cublasGetMatrixAsync(nrowc_dev_pre, ncolc_dev_pre, sizeof(cuDoubleComplex), C_dev[current_stream+(1-switcher)*STREAMNUM], block_dim, starting_point_C_pre, ldc,*stream) == CUBLAS_STATUS_SUCCESS);
         }
