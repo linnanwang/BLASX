@@ -23,8 +23,8 @@ void blasx_gpu_sgemm_kernel(int j,
 {
     int nrowa_dev, nrowb_dev, nrowc_dev;
     int ncola_dev, ncolb_dev, ncolc_dev;
-    int nrow_offset_a, nrow_offset_b;
-    int ncol_offset_a, ncol_offset_b;
+    long nrow_offset_a, nrow_offset_b;
+    long ncol_offset_a, ncol_offset_b;
     int i = current_task/(y+1);
     int k = current_task%(y+1);
     float *A_dev, *B_dev;
@@ -70,8 +70,8 @@ void blasx_gpu_sgemm_kernel(int j,
             int k_pre = prior_task%(y+1);
             int nrowc_dev_pre, ncolc_dev_pre;
             margin_adjustment(nrowc,ncolc,block_dim,i_pre,k_pre,&nrowc_dev_pre,&ncolc_dev_pre);
-            int nrow_offset_c_pre = i_pre*block_dim;
-            int ncol_offset_c_pre = k_pre*block_dim;
+            long nrow_offset_c_pre = i_pre*block_dim;
+            long ncol_offset_c_pre = k_pre*block_dim;
             float *starting_point_C_pre = &C[nrow_offset_c_pre+ncol_offset_c_pre*ldc];
             assert( cublasGetMatrixAsync(nrowc_dev_pre, ncolc_dev_pre, sizeof(float), C_dev[current_stream+(1-switcher)*STREAMNUM], block_dim, starting_point_C_pre, ldc,*stream) == CUBLAS_STATUS_SUCCESS);
         }
